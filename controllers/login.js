@@ -1,15 +1,13 @@
-import usersModel from '../models/users.js';
+import loginModel from '../models/login.js';
 
 function login(req, res) {
   const { username, password } = req.body;
-  console.log("username: ", username);
-  console.log("pass: ", password);
   if (!username || !password) {
     res.status(400).send('Missing username or password');
     return;
   }
   async function authenticateUser(username, password) {
-    const result = await usersModel.checkUserandPass(username, password);
+    const result = await loginModel.checkUserandPass(username, password);
     return result;
 }
 (async () => {
