@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 
-app.use('/', LoginRouter);
+app.use('/login', LoginRouter);
 
 app.use('/register', RegRouter);
 

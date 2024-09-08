@@ -1,27 +1,25 @@
 import { MongoClient } from 'mongodb';
 
-async function read() {
+async function checkUserAndPass(username, password) {
     const client = new MongoClient("mongodb://localhost:27017");
     try {
         const db = client.db('Faketube');
         const usersCollection = db.collection('users');
-        const users = await usersCollection.find({}).toArray();
-        return users;
+        
+        // Find the user by username and password
+        const user = await usersCollection.findOne({ username: username, password: password });
+        
+        // If the user is found, return the user data and profile picture
+        if (user) {    
+            return { success: true, user: user }; // Assuming `profile` contains the profile picture
+        } else {
+            return { success: false, message: "Invalid username or password" };
+        }
     } finally {
         await client.close();
     }
 }
 
-async function checkUserandPass(username, password) {
-    const users = await read(); // Fetch the users from the database
-    for (const user of users) {
-        if (user.username === username && user.password === password) {
-            return { success: true, user: user, picture: user.profile }; // Return profile picture here
-        }
-    }
-    return { success: false };
-}
-
 export default {
-    checkUserandPass
+    checkUserAndPass
 };

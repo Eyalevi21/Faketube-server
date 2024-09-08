@@ -7,7 +7,7 @@ function login(req, res) {
     return;
   }
   async function authenticateUser(username, password) {
-    const result = await loginModel.checkUserandPass(username, password);
+    const result = await loginModel.checkUserAndPass(username, password);
     return result;
 }
 (async () => {
@@ -16,8 +16,9 @@ function login(req, res) {
   if (result.success) {
     // Send the profile picture and username back to the client
     res.status(200).json({
-      profilePicture: result.picture,
+      profilePicture: result.user.profile,
       username: result.user.username,
+      nickname: result.user.nickname,
     });
   } else {
     res.status(404).send('Invalid username or password');
