@@ -4,7 +4,7 @@ const router = express.Router();
 
 
 
-router.post('/', login);
+router.post('/api/users', login);
 export default router;
 
 
