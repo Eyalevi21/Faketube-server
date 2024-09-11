@@ -1,4 +1,4 @@
-import loginModel from '../models/login.js';
+import loginModel from '../models/loginModel.js';
 
 function login(req, res) {
   const { username, password } = req.body;

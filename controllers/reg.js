@@ -1,4 +1,4 @@
-import regModel from '../models/reg.js';
+import regModel from '../models/regModel.js';
 
 async function register(req, res) {
     const { username, password, nickname, profile } = req.body;

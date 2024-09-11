@@ -3,7 +3,8 @@ import bodyParser from 'body-parser';
 
 import LoginRouter  from './routes/login.js';
 import RegRouter from './routes/reg.js'
-import HomeVideosRouter from './routes/homevideos.js'
+import videoRouter from './routes/videoRoutes.js'
+import userRouter from './routes/userRoutes.js'
 
 
 
@@ -17,10 +18,9 @@ app.use(express.static('public'));
 
 
 app.use('/', LoginRouter);
-
 app.use('/register', RegRouter);
-
-app.use('/', HomeVideosRouter);
+app.use('/', userRouter);
+app.use('/', videoRouter);
 
 
 app.listen(PORT, () => {
