@@ -1,8 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 
-import LoginRouter  from './routes/login.js';
-import RegRouter from './routes/reg.js'
+import loginRouter  from './routes/loginRoutes.js';
 import videoRouter from './routes/videoRoutes.js'
 import userRouter from './routes/userRoutes.js'
 
@@ -21,8 +20,7 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 
-app.use('/', LoginRouter);
-app.use('/register', RegRouter);
+app.use('/api/tokens', loginRouter);
 app.use('/api/users', userRouter);
 app.use('/api/videos', videoRouter);
 

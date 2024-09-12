@@ -13,7 +13,6 @@ async function initializeConnection() {
     try {
         await client.connect();
         db = client.db(dbName);
-        console.log('Connected to MongoDB');
     } catch (error) {
         console.error('Failed to connect to MongoDB', error);
         process.exit(1); // Exit process if unable to connect
@@ -64,4 +63,56 @@ async function deleteUserByUsername(username) {
     }
 }
 
-export default { getUserByUsername, updateUserByUsername, deleteUserByUsername };
+async function userRegister(username, password, nickname, profile) {
+    try {
+        const collection = db.collection(collectionName);
+
+        // Check if the username already exists
+        const existingUser = await collection.findOne({ username });
+        if (existingUser) {
+            return { success: false, message: 'Username already exists' };
+        }
+
+        // Base64 encode the profile
+        const profile64 = Buffer.from(profile).toString('base64');
+
+        const newUser = {
+            username,
+            password,
+            nickname,
+            profile: profile64
+        };
+
+        const result = await collection.insertOne(newUser);
+        if (result.acknowledged) {
+            return { success: true, message: 'User registered successfully' };
+        } else {
+            return { success: false, message: 'Failed to register user' };
+        }
+    } catch (error) {
+        console.error('Error registering user', error);
+        return { success: false, message: 'An error occurred during registration' };
+    }
+}
+
+async function checkUserAndPass(username, password) {
+    try {
+        const user = await getUserByUsername(username);
+        
+        // If user is found, verify the password
+        if (user && verifyPassword(user, password)) {
+            return { success: true, user };
+        } else {
+            return { success: false, message: 'Invalid username or password' };
+        }
+    } catch (error) {
+        console.error('Error checking user and password', error);
+        return { success: false, message: 'An error occurred while checking credentials' };
+    }
+}
+
+function verifyPassword(user, password) {
+    return user.password === password; 
+}
+
+export default { getUserByUsername, updateUserByUsername, deleteUserByUsername, verifyPassword, userRegister, checkUserAndPass };
