@@ -2,10 +2,10 @@ import express from 'express';
 import { homeVideos, videoData, updateVideo, deleteVideo } from '../controllers/videoController.js';
 const router = express.Router();
 
-router.get('/api/videos', homeVideos);
-router.get('/api/videos/:vid', videoData)
+router.get('/', homeVideos);
+router.get('/:vid', videoData)
 
-router.patch('/api/videos/:vid', updateVideo);
-router.put('/api/videos/:vid', updateVideo);  
-router.delete('/api/videos/:vid', deleteVideo);
+router.patch('/:vid', updateVideo);
+router.put('/:vid', updateVideo);  
+router.delete('/:vid', deleteVideo);
 export default router;

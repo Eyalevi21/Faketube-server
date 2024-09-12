@@ -39,7 +39,6 @@ async function getUserVideos(req, res) {
 async function videoData(req, res) {
     try {
         const videoId = req.params.vid; // Get video ID from URL
-        console.log(videoId);
         // Fetch video from the model
         const video = await videoModel.getVideo(videoId);
         

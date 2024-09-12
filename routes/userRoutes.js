@@ -3,13 +3,13 @@ import { getUser, updateUser, deleteUser } from '../controllers/userController.j
 import { getUserVideos } from '../controllers/videoController.js';
 
 const router = express.Router();
-router.get('/api/users/:id/videos', getUserVideos);
-router.get('/api/users/:id', getUser);
+router.get('/:id/videos', getUserVideos);
+router.get('/:id', getUser);
 
 
-router.patch('/api/users/:id', updateUser);
-router.put('/api/users/:id', updateUser);  
+router.patch('/:id', updateUser);
+router.put('/:id', updateUser);  
 
-router.delete('/api/users/:id', deleteUser);
+router.delete('/:id', deleteUser);
 
 export default router;
