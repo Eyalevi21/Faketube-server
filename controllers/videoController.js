@@ -19,15 +19,15 @@ async function homeVideos(req, res) {
 }
 
 async function getUserVideos(req, res) {
-    const { username } = req.params;
+    const { id } = req.params;
 
     try {
-        const user = await userModel.getUserByUsername(username);
+        const user = await userModel.getUserByUsername(id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const videos = await videoModel.getVideosByUser(username);
+        const videos = await videoModel.getVideosByUser(id);
 
         return res.status(200).json(videos);
     } catch (error) {
