@@ -80,5 +80,29 @@ async function deleteVideoByVid(vid) {
     }
 }
 
-// Export functions
-export default { getAllVideos, getVideo, getVideosByUser, updateVideoByVid, deleteVideoByVid };
+async function getVideoComments(vid) {
+    try {
+        const collection = db.collection('comments');
+
+        const comments = await collection.find({ commentVid: vid }).toArray();
+
+        return comments;
+    } catch (error) {
+        console.error('Error fetching comments from the database:', error);
+        throw new Error('Database fetch error');
+    }
+}
+
+async function addComment(commentData) {
+    try {
+        const collection = db.collection('comments');
+        const result = await collection.insertOne(commentData);
+        return result;
+    } catch (error) {
+        console.error('Error adding comment to database:', error);
+        throw new Error('Database insert error');
+    }
+}
+
+
+export default { getAllVideos, getVideo, getVideosByUser, updateVideoByVid, deleteVideoByVid, getVideoComments, addComment };

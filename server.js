@@ -24,6 +24,7 @@ app.use('/api/tokens', loginRouter);
 app.use('/api/users', userRouter);
 app.use('/api/videos', videoRouter);
 
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

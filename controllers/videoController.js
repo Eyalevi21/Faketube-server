@@ -1,11 +1,11 @@
 import videoModel from '../models/videoModel.js';
-import userModel from '../models/userModel.js'; 
+import userModel from '../models/userModel.js';
 
 async function homeVideos(req, res) {
     try {
         // Fetch videos from the model
         const videos = await videoModel.getAllVideos();
-        
+
         // Check if any videos are found
         if (videos.length > 0) {
             res.json(videos); // Send videos as JSON response
@@ -41,7 +41,7 @@ async function videoData(req, res) {
         const videoId = req.params.vid; // Get video VID from URL
         // Fetch video from the model
         const video = await videoModel.getVideo(videoId);
-        
+
         // Check if video are found
         if (video) {
             res.json(video); // Send video as JSON response
@@ -55,14 +55,14 @@ async function videoData(req, res) {
 }
 
 async function updateVideo(req, res) {
-    const { vid } = req.params; 
+    const { vid } = req.params;
     const { id } = req.params;
     const updateData = req.body;
 
     try {
         // Fetch the video to check if the user is the owner
         const video = await videoModel.getVideo(vid);
-        
+
         if (!video) {
             return res.status(404).json({ message: 'Video not found' });
         }
@@ -90,13 +90,13 @@ async function updateVideo(req, res) {
 }
 
 async function deleteVideo(req, res) {
-    const { vid } = req.params; 
-    const { id } = req.params;  
+    const { vid } = req.params;
+    const { id } = req.params;
 
     try {
         // Fetch the video to check if the user is the owner
         const video = await videoModel.getVideo(vid);
-        
+
         if (!video) {
             return res.status(404).json({ message: 'Video not found' });
         }
@@ -119,5 +119,46 @@ async function deleteVideo(req, res) {
     }
 }
 
+async function getComments(req, res) {
+    const { vid } = req.params;
 
-export  { homeVideos, getUserVideos, videoData, updateVideo, deleteVideo};
+    try {
+        const comments = await videoModel.getVideoComments(vid);
+
+        if (!comments || comments.length === 0) {
+            return res.status(200).json({ message: 'No comments found for this video' });
+        }
+
+        return res.status(200).json(comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+async function addComment(req, res) {
+    const { vid } = req.params;
+    const { creator, content } = req.body;
+
+    try {
+        const newComment = {
+            commentVid: vid,
+            creator: creator,
+            content: content,
+        };
+
+        const result = await videoModel.addComment(newComment);
+        if (result.insertedId) {
+            newComment._id = result.insertedId;
+            res.status(201).json(newComment);
+        } else {
+            res.status(500).json({ message: 'Failed to add comment' });
+        }
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
+export { homeVideos, getUserVideos, videoData, updateVideo, deleteVideo, getComments, addComment };
