@@ -38,7 +38,7 @@ async function getUserVideos(req, res) {
 
 async function videoData(req, res) {
     try {
-        const videoId = req.params.vid; // Get video ID from URL
+        const videoId = req.params.vid; // Get video VID from URL
         // Fetch video from the model
         const video = await videoModel.getVideo(videoId);
         
@@ -55,17 +55,33 @@ async function videoData(req, res) {
 }
 
 async function updateVideo(req, res) {
-    const { vid } = req.params.vid;
-    const updateData = req.body; // Get update data from the request body
+    const { vid } = req.params; 
+    const { id } = req.params;
+    const updateData = req.body;
 
     try {
+        // Fetch the video to check if the user is the owner
+        const video = await videoModel.getVideo(vid);
+        
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+
+        // Check if the user (id) is the artist/owner of the video
+        if (video.artist !== id) {
+            return res.status(403).json({ message: 'You are not authorized to update this video' });
+        }
+
+        // Proceed with updating the video
         const result = await videoModel.updateVideoByVid(vid, updateData);
+
         if (result.matchedCount === 0) {
             return res.status(404).json({ message: 'Video not found' });
         }
         if (result.modifiedCount === 0) {
             return res.status(200).json({ message: 'No changes made to the video' });
         }
+
         return res.status(200).json({ message: 'Video updated successfully' });
     } catch (error) {
         console.error('Error updating video:', error);
@@ -74,13 +90,28 @@ async function updateVideo(req, res) {
 }
 
 async function deleteVideo(req, res) {
-    const { vid } = req.params;
+    const { vid } = req.params; 
+    const { id } = req.params;  
 
     try {
+        // Fetch the video to check if the user is the owner
+        const video = await videoModel.getVideo(vid);
+        
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+
+        // Check if the user (id) is the artist/owner of the video
+        if (video.artist !== id) {
+            return res.status(403).json({ message: 'You are not authorized to delete this video' });
+        }
+
+        // Proceed with deleting the video
         const result = await videoModel.deleteVideoByVid(vid);
         if (result.deletedCount === 0) {
             return res.status(404).json({ message: 'Video not found' });
         }
+
         return res.status(200).json({ message: 'Video deleted successfully' });
     } catch (error) {
         console.error('Error deleting video:', error);
