@@ -93,6 +93,70 @@ async function getVideoComments(vid) {
     }
 }
 
+async function updateVideoReactions(vid, currentReaction, newReaction) {
+    try {
+        const collection = db.collection('reactions');
+
+        // Find the current reaction data for the video
+        const reactionDoc = await collection.findOne({ reactionVid: vid });
+
+        if (!reactionDoc) {
+            return null; // No reactions found for this video
+        }
+
+        // Prepare the update object
+        let update = {};
+
+        if (newReaction === 'like') {
+            update = {
+                $inc: {
+                    likes: 1,
+                    unlikes: currentReaction === 'unlike' && reactionDoc.unlikes > 0 ? -1 : 0 // Decrement unlikes only if it's greater than 0
+                }
+            };
+        } else if (newReaction === 'unlike') {
+            update = {
+                $inc: {
+                    unlikes: 1,
+                    likes: currentReaction === 'like' && reactionDoc.likes > 0 ? -1 : 0 // Decrement likes only if it's greater than 0
+                }
+            };
+        }
+
+        // Update the reactions in the database
+        const result = await collection.updateOne({ reactionVid: vid }, update);
+
+        if (result.modifiedCount > 0) {
+            // Fetch the updated reaction data to return
+            const updatedReactions = await collection.findOne({ reactionVid: vid });
+            return updatedReactions;
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error updating reactions in model:', error);
+        throw error;
+    }
+}
+
+
+async function getVideoReactions(vid) {
+    try {
+        const collection = db.collection('reactions');
+        const reactions = await collection.findOne({ reactionVid: vid });
+
+        if (reactions) {
+            return reactions;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching video reactions:', error);
+        throw new Error('Error fetching video reactions');
+    }
+}
+
+
 async function addComment(commentData) {
     try {
         const collection = db.collection('comments');
@@ -105,4 +169,4 @@ async function addComment(commentData) {
 }
 
 
-export default { getAllVideos, getVideo, getVideosByUser, updateVideoByVid, deleteVideoByVid, getVideoComments, addComment };
+export default { getAllVideos, getVideo, getVideosByUser, updateVideoByVid, deleteVideoByVid, getVideoComments, addComment, getVideoReactions, updateVideoReactions };
