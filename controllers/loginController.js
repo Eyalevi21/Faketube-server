@@ -1,22 +1,17 @@
-import { generateToken } from '../services/tokenService.js';
 import userModel from '../models/userModel.js';
 
 async function login(req, res) {
     try {
         const { username, password } = req.body;
-
         if (!username || !password) {
             return res.status(400).send('Missing username or password');
         }
 
         // Check user credentials
-        const user = await userModel.getUserByUsername(username);
+        const { user, token } = await userModel.getUserByUsername(username);
         if (!user || !userModel.verifyPassword(user, password)) {
             return res.status(401).send('Invalid username or password');
         }
-
-        // Generate JWT
-        const token = generateToken(user);
         
         // Send JWT and user details to client
         res.status(200).json({

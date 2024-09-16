@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-
+import { generateToken } from '../services/tokenService.js';
 const uri = 'mongodb://localhost:27017';
 const client = new MongoClient(uri);
 
@@ -26,7 +26,9 @@ async function getUserByUsername(username) {
     try {
         const collection = db.collection(collectionName);
         const user = await collection.findOne({ username });
-        return user;
+          // Generate JWT
+        const token = generateToken(user);
+        return {user, token};
     } catch (error) {
         console.error('Error fetching user from database:', error);
         throw new Error('Database fetch error');
