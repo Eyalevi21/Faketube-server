@@ -8,7 +8,7 @@ async function login(req, res) {
         }
 
         // Check user credentials
-        const { user, token } = await userModel.getUserByUsername(username);
+        const { token, user } = await userModel.getUserByUsername(username);
         if (!user || !userModel.verifyPassword(user, password)) {
             return res.status(401).send('Invalid username or password');
         }

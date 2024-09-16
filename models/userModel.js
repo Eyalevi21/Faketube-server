@@ -28,7 +28,7 @@ async function getUserByUsername(username) {
         const user = await collection.findOne({ username });
           // Generate JWT
         const token = generateToken(user);
-        return {user, token};
+        return { token, user };
     } catch (error) {
         console.error('Error fetching user from database:', error);
         throw new Error('Database fetch error');
