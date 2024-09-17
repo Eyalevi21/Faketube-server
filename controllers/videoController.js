@@ -154,24 +154,22 @@ async function getReactions(req, res) {
 
 async function updateReactions(req, res) {
     const { vid } = req.params;
-    const { currentReaction, newReaction } = req.body;
+    const { username, newReaction } = req.body;
 
     try {
-        // Call the model function to update reactions
-        const updatedReactions = await videoModel.updateVideoReactions(vid, currentReaction, newReaction);
-
-        if (updatedReactions) {
-            // Send back the updated likes and unlikes
+        const result = await videoModel.updateVideoReactions(vid, username, newReaction);
+        if (result === 'already reacted') {
+            return res.status(400).json({ message: 'User has already reacted in the same way' });
+        }
+        if (result) {
             res.status(200).json({
-                likes: updatedReactions.likes,
-                unlikes: updatedReactions.unlikes,
+                likes: result.likes,
+                unlikes: result.unlikes,
             });
-        } else {
-            res.status(404).json({ message: 'Video reactions not found' });
         }
     } catch (error) {
-        console.error('Error updating reactions:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        console.error('Error updating video reactions:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 }
 

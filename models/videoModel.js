@@ -93,51 +93,70 @@ async function getVideoComments(vid) {
     }
 }
 
-async function updateVideoReactions(vid, currentReaction, newReaction) {
+async function updateVideoReactions(vid, username, newReaction) {
     try {
         const collection = db.collection('reactions');
+        const videoReaction = await collection.findOne({ reactionVid: vid });
 
-        // Find the current reaction data for the video
-        const reactionDoc = await collection.findOne({ reactionVid: vid });
-
-        if (!reactionDoc) {
-            return null; // No reactions found for this video
+        if (!videoReaction) {
+            return null;
         }
 
-        // Prepare the update object
+        const alreadyLiked = videoReaction.usersLiked.includes(username);
+        const alreadyUnliked = videoReaction.usersUnliked.includes(username);
+
         let update = {};
 
         if (newReaction === 'like') {
+            if (alreadyLiked) {
+                return 'already reacted';
+            }
+
+            if (alreadyUnliked) {
+                update = {
+                    $pull: { usersUnliked: username },
+                    $inc: { unlikes: -1 }
+                };
+            }
+
             update = {
-                $inc: {
-                    likes: 1,
-                    unlikes: currentReaction === 'unlike' && reactionDoc.unlikes > 0 ? -1 : 0 // Decrement unlikes only if it's greater than 0
-                }
+                ...update,
+                $addToSet: { usersLiked: username },
+                $inc: { ...update.$inc, likes: 1 }
             };
+
         } else if (newReaction === 'unlike') {
+            if (alreadyUnliked) {
+                return 'already reacted'; // User has already unliked
+            }
+
+            // If the user has already liked, remove them from likes and decrease count
+            if (alreadyLiked) {
+                update = {
+                    $pull: { usersLiked: username },
+                    $inc: { likes: -1 }
+                };
+            }
+
+            // Ensure we merge the $inc updates for likes and unlikes properly
             update = {
-                $inc: {
-                    unlikes: 1,
-                    likes: currentReaction === 'like' && reactionDoc.likes > 0 ? -1 : 0 // Decrement likes only if it's greater than 0
-                }
+                ...update,
+                $addToSet: { usersUnliked: username },
+                $inc: { ...update.$inc, unlikes: 1 } // Merging $inc for both likes and unlikes
             };
         }
 
-        // Update the reactions in the database
         const result = await collection.updateOne({ reactionVid: vid }, update);
+        if (result.matchedCount === 0) return null;
 
-        if (result.modifiedCount > 0) {
-            // Fetch the updated reaction data to return
-            const updatedReactions = await collection.findOne({ reactionVid: vid });
-            return updatedReactions;
-        }
-
-        return null;
+        // Fetch the updated reaction data
+        return await collection.findOne({ reactionVid: vid });
     } catch (error) {
-        console.error('Error updating reactions in model:', error);
-        throw error;
+        console.error('Error updating video reactions:', error);
+        throw new Error('Database update error');
     }
 }
+
 
 
 async function getVideoReactions(vid) {

@@ -36,12 +36,12 @@ async function createUser(req, res) {
 }
 
 async function updateUser(req, res) {
-    const { username } = req.params; 
+    const { id } = req.params; 
     const { nickname, profile } = req.body;
 
     try {
         const updateData = { nickname, profile };
-        const result = await userModel.updateUserByUsername(username, updateData);
+        const result = await userModel.updateUserByUsername(id, updateData);
         
         if (result.matchedCount === 0) {
             return res.status(404).json({ message: 'User not found' });
@@ -59,10 +59,10 @@ async function updateUser(req, res) {
 }
 
 async function deleteUser(req, res) {
-    const { username } = req.params; 
+    const { id } = req.params; 
 
     try {
-        const result = await userModel.deleteUserByUsername(username);
+        const result = await userModel.deleteUserByUsername(id);
         if (result.deletedCount === 0) {
             return res.status(404).json({ message: 'User not found' });
         }
