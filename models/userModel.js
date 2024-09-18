@@ -26,7 +26,7 @@ async function getUserByUsername(username) {
     try {
         const collection = db.collection(collectionName);
         const user = await collection.findOne({ username });
-          // Generate JWT
+        // Generate JWT
         const token = generateToken(user);
         return { token, user };
     } catch (error) {
@@ -44,7 +44,7 @@ async function updateUserByUsername(username, updateData) {
         if (updateData.profile) allowedUpdates.profile = updateData.profile;
 
         const result = await collection.updateOne(
-            { username }, 
+            { username },
             { $set: allowedUpdates }
         );
         return result;
@@ -56,16 +56,53 @@ async function updateUserByUsername(username, updateData) {
 
 async function deleteUserByUsername(username) {
     try {
-        const collection = db.collection(collectionName);
-        const result = await collection.deleteOne({ username });
-        return result;
+        // 1. Delete the user from the users collection
+        const usersCollection = db.collection('users');
+        const userResult = await usersCollection.deleteOne({ username });
+
+        // 2. Delete the user's comments from the comments collection
+        const commentsCollection = db.collection('comments');
+        const commentsResult = await commentsCollection.deleteMany({ creator: username });
+
+        // 3. Update reactions: Remove the user from `usersLiked` and `usersUnliked` arrays and adjust the like/unlike counts
+        const reactionsCollection = db.collection('reactions');
+
+        // Step 1: Decrement likes and remove from usersLiked array
+        const decrementLikesResult = await reactionsCollection.updateMany(
+            { usersLiked: username },
+            {
+                $inc: { likes: -1 }, // Decrease likes count
+                $pull: { usersLiked: username } // Remove the user from usersLiked array
+            }
+        );
+
+        // Step 2: Decrement unlikes and remove from usersUnliked array
+        const decrementUnlikesResult = await reactionsCollection.updateMany(
+            { usersUnliked: username },
+            {
+                $inc: { unlikes: -1 }, // Decrease unlikes count
+                $pull: { usersUnliked: username } // Remove the user from usersUnliked array
+            }
+        );
+
+        // Return results
+        return {
+            userResult,
+            commentsResult,
+            reactionsResult: {
+                decrementLikesResult,
+                decrementUnlikesResult
+            }
+        };
+
     } catch (error) {
-        console.error('Error deleting user from database:', error);
-        throw new Error('Database delete error');
+        console.error('Error deleting user and related data:', error);
+        throw new Error('Database delete operation failed');
     }
 }
 
-async function userRegister(username, password, nickname, profile) {
+
+async function userRegister(username, password, nickname) {
     try {
         const collection = db.collection(collectionName);
 
@@ -75,14 +112,10 @@ async function userRegister(username, password, nickname, profile) {
             return { success: false, message: 'Username already exists' };
         }
 
-        // Base64 encode the profile
-        const profile64 = Buffer.from(profile).toString('base64');
-
         const newUser = {
             username,
             password,
             nickname,
-            profile: profile64
         };
 
         const result = await collection.insertOne(newUser);
@@ -100,7 +133,7 @@ async function userRegister(username, password, nickname, profile) {
 async function checkUserAndPass(username, password) {
     try {
         const user = await getUserByUsername(username);
-        
+
         // If user is found, verify the password
         if (user && verifyPassword(user, password)) {
             return { success: true, user };
@@ -114,7 +147,22 @@ async function checkUserAndPass(username, password) {
 }
 
 function verifyPassword(user, password) {
-    return user.password === password; 
+    return user.password === password;
 }
 
-export default { getUserByUsername, updateUserByUsername, deleteUserByUsername, verifyPassword, userRegister, checkUserAndPass };
+async function updateUserProfileImage(username, profileImageName) {
+    try {
+        const collection = db.collection(collectionName);
+        const result = await collection.findOneAndUpdate(
+            { username },  // Find by username
+            { $set: { profile: profileImageName } },  // Update the profile image path
+            { returnDocument: 'after' }  // Return the updated document
+        );
+        return result;  // The updated user document or null if not found
+    } catch (error) {
+        console.error('Error updating user profile image:', error);
+        throw new Error('Database update error');
+    }
+}
+
+export default { getUserByUsername, updateUserByUsername, deleteUserByUsername, verifyPassword, userRegister, checkUserAndPass, updateUserProfileImage };

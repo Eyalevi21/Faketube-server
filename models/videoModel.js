@@ -71,12 +71,26 @@ async function updateVideoByVid(vid, updateData) {
 
 async function deleteVideoByVid(vid) {
     try {
-        const collection = db.collection(collectionName);
-        const result = await collection.deleteOne({ vid });
-        return result;
+        const videoCollection = db.collection('videos');
+        const commentsCollection = db.collection('comments');
+        const reactionsCollection = db.collection('reactions');
+
+        // Delete the video
+        const videoDeleteResult = await videoCollection.deleteOne({ vid });
+        if (videoDeleteResult.deletedCount === 0) {
+            throw new Error('Video not found');
+        }
+
+        // Delete all comments associated with the video
+        await commentsCollection.deleteMany({ commentVid: vid });
+
+        // Delete all reactions associated with the video
+        await reactionsCollection.deleteMany({ reactionVid: vid });
+
+        return { success: true, message: 'Video, comments, and reactions deleted successfully' };
     } catch (error) {
-        console.error('Error deleting video by vid:', error);
-        throw new Error('Database delete error');
+        console.error('Error deleting video, comments, and reactions:', error);
+        throw new Error('Failed to delete video and related data');
     }
 }
 
