@@ -164,5 +164,60 @@ async function updateUserProfileImage(username, profileImageName) {
         throw new Error('Database update error');
     }
 }
+async function uploadVideoFile(videoData) {
+    try {
+        const collection = db.collection('videos');
 
-export default { getUserByUsername, updateUserByUsername, deleteUserByUsername, verifyPassword, userRegister, checkUserAndPass, updateUserProfileImage };
+        // Find the maximum 'vid' in the collection and calculate the next one
+        const maxVidResult = await collection.aggregate([
+            {
+                $project: {
+                    vid: { $toInt: "$vid" }  // Convert vid to integer
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    maxVid: { $max: "$vid" }
+                }
+            }
+        ]).toArray();
+
+        // Convert maxVid to integer and increment it
+        const nextVid = maxVidResult.length > 0 ? (maxVidResult[0].maxVid + 1).toString() : "1";
+        
+        // Define the video document to insert with the new 'vid' as an integer
+        const videoDocument = {
+            title: videoData.title,
+            description: videoData.description,
+            imageName: videoData.imageName,
+            videoFile: videoData.videoFile,
+            artist: videoData.artist,
+            views: videoData.views || 0,
+            date: new Date(videoData.date),
+            vid: nextVid,  // Using dynamic vid as an integer
+            userId: videoData.userId,
+        };
+
+        // Insert the video document into the 'videos' collection
+        const result = await collection.insertOne(videoDocument);
+
+        // Log result to debug
+        
+
+        // Check if the insertion was successful
+        if (result.acknowledged) {
+            return { success: true, video: videoDocument, insertedId: result.insertedId };
+        } else {
+            return { success: false, message: 'Failed to insert video document' };
+        }
+    } catch (error) {
+        console.error('Error uploading video to database:', error);
+        throw new Error('Database insert error');
+    }
+}
+
+
+
+
+export default { getUserByUsername, updateUserByUsername, deleteUserByUsername, verifyPassword, userRegister, checkUserAndPass, updateUserProfileImage, uploadVideoFile };
