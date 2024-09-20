@@ -5,7 +5,8 @@ const client = new MongoClient(uri);
 
 const dbName = 'Faketube';
 const collectionName = 'users';
-
+import fs from 'fs';
+import path from 'path';
 let db;
 
 // Initialize connection once
@@ -54,6 +55,8 @@ async function updateUserByUsername(username, updateData) {
     }
 }
 
+
+
 async function deleteUserByUsername(username) {
     try {
         // 1. Delete the user from the users collection
@@ -85,6 +88,37 @@ async function deleteUserByUsername(username) {
             }
         );
 
+        // 4. Fetch all videos related to the user from the videos collection
+        const videosCollection = db.collection('videos');
+        const userVideos = await videosCollection.find({ artist: username }).toArray();
+        // This will correctly resolve to the base directory where your script is running
+        const projectRoot = process.cwd();
+    
+
+        for (const video of userVideos) {
+            const thumbnailPath = path.join(projectRoot, 'public', 'videoThumbnails', video.imageName);
+            const videoFilePath = path.join(projectRoot, 'public', 'videofiles', video.videoFile);
+
+            // Delete the video file
+            if (fs.existsSync(videoFilePath)) {
+                fs.unlinkSync(videoFilePath);
+            }
+
+            // Delete the thumbnail
+            if (fs.existsSync(thumbnailPath)) {
+                fs.unlinkSync(thumbnailPath);
+            }
+
+            // 5. Delete related comments for each video
+            await commentsCollection.deleteMany({ vid: video.vid });
+
+            // 6. Delete related reactions for each video
+            await reactionsCollection.deleteMany({ reactionVid: video.vid });
+        }
+
+        // 7. Delete the videos from the videos collection
+        const videosResult = await videosCollection.deleteMany({ artist: username });
+
         // Return results
         return {
             userResult,
@@ -92,7 +126,8 @@ async function deleteUserByUsername(username) {
             reactionsResult: {
                 decrementLikesResult,
                 decrementUnlikesResult
-            }
+            },
+            videosResult
         };
 
     } catch (error) {
@@ -100,6 +135,7 @@ async function deleteUserByUsername(username) {
         throw new Error('Database delete operation failed');
     }
 }
+
 
 
 async function userRegister(username, password, nickname) {
