@@ -80,8 +80,6 @@ async function deleteUser(req, res) {
 async function uploadProfileImage(req, res) {
     try {
         const profileImage = req.file;  // Multer handles the file
-        const id = req.body.id;  // Get username from request body
-
         // Update user's profile image path in the database
         const user = await userModel.updateUserProfileImage(id, profileImage.filename);
 
