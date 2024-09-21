@@ -69,13 +69,41 @@ async function updateVideoByVid(vid, updateData) {
     }
 }
 
+import fs from 'fs';
+import path from 'path';
+
 async function deleteVideoByVid(vid) {
     try {
         const videoCollection = db.collection('videos');
         const commentsCollection = db.collection('comments');
         const reactionsCollection = db.collection('reactions');
 
-        // Delete the video
+        // Find the video document to get the file names before deleting
+        const video = await videoCollection.findOne({ vid });
+        if (!video) {
+            throw new Error('Video not found');
+        }
+
+        // Paths for the video file and thumbnail
+        const projectRoot = process.cwd();
+        const videoFilePath = path.join(projectRoot, 'public', 'videofiles', video.videoFile);
+        const thumbnailPath = path.join(projectRoot, 'public', 'videoThumbnails', video.imageName);
+
+        // Delete the video file from the filesystem
+        if (fs.existsSync(videoFilePath)) {
+            fs.unlinkSync(videoFilePath);  // Synchronous file deletion
+        } else {
+            console.warn(`Video file not found: ${videoFilePath}`);
+        }
+
+        // Delete the thumbnail from the filesystem
+        if (fs.existsSync(thumbnailPath)) {
+            fs.unlinkSync(thumbnailPath);  // Synchronous file deletion
+        } else {
+            console.warn(`Thumbnail not found: ${thumbnailPath}`);
+        }
+
+        // Delete the video from the database
         const videoDeleteResult = await videoCollection.deleteOne({ vid });
         if (videoDeleteResult.deletedCount === 0) {
             throw new Error('Video not found');
@@ -87,12 +115,13 @@ async function deleteVideoByVid(vid) {
         // Delete all reactions associated with the video
         await reactionsCollection.deleteMany({ reactionVid: vid });
 
-        return { success: true, message: 'Video, comments, and reactions deleted successfully' };
+        return { success: true, message: 'Video, files, comments, and reactions deleted successfully' };
     } catch (error) {
-        console.error('Error deleting video, comments, and reactions:', error);
+        console.error('Error deleting video, files, comments, and reactions:', error);
         throw new Error('Failed to delete video and related data');
     }
 }
+
 
 async function getVideoComments(vid) {
     try {

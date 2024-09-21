@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 import { generateToken } from '../services/tokenService.js';
 const uri = 'mongodb://localhost:27017';
 const client = new MongoClient(uri);
-
+import videoModel from '../models/videoModel.js';
 const dbName = 'Faketube';
 const collectionName = 'users';
 import fs from 'fs';
@@ -92,28 +92,11 @@ async function deleteUserByUsername(username) {
         const videosCollection = db.collection('videos');
         const userVideos = await videosCollection.find({ artist: username }).toArray();
         // This will correctly resolve to the base directory where your script is running
-        const projectRoot = process.cwd();
+       
     
 
         for (const video of userVideos) {
-            const thumbnailPath = path.join(projectRoot, 'public', 'videoThumbnails', video.imageName);
-            const videoFilePath = path.join(projectRoot, 'public', 'videofiles', video.videoFile);
-
-            // Delete the video file
-            if (fs.existsSync(videoFilePath)) {
-                fs.unlinkSync(videoFilePath);
-            }
-
-            // Delete the thumbnail
-            if (fs.existsSync(thumbnailPath)) {
-                fs.unlinkSync(thumbnailPath);
-            }
-
-            // 5. Delete related comments for each video
-            await commentsCollection.deleteMany({ vid: video.vid });
-
-            // 6. Delete related reactions for each video
-            await reactionsCollection.deleteMany({ reactionVid: video.vid });
+            await videoModel.deleteVideoByVid(video.vid);  // Call the delete function for each video's vid        
         }
 
         // 7. Delete the videos from the videos collection
@@ -247,10 +230,10 @@ async function uploadVideoFile(videoData) {
             
             const reactionDocument = {
                 reactionVid: nextVid,   // Use the same 'vid' from the inserted video
-                likes: "0",             // Initialize likes to "0"
-                unlikes: "0",           // Initialize unlikes to "0"
-                userLiked: [],          // Initialize userLiked array to empty
-                userUnliked: []         // Initialize userUnliked array to empty
+                likes: 0,             // Initialize likes to "0"
+                unlikes: 0,           // Initialize unlikes to "0"
+                usersLiked: [],          // Initialize userLiked array to empty
+                usersUnliked: []         // Initialize userUnliked array to empty
             };
 
             // Insert the reaction document into the 'reactions' collection
