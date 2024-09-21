@@ -2,10 +2,11 @@ import { MongoClient } from 'mongodb';
 import { generateToken } from '../services/tokenService.js';
 const uri = 'mongodb://localhost:27017';
 const client = new MongoClient(uri);
-
+import videoModel from '../models/videoModel.js';
 const dbName = 'Faketube';
 const collectionName = 'users';
-
+import fs from 'fs';
+import path from 'path';
 let db;
 
 // Initialize connection once
@@ -54,6 +55,8 @@ async function updateUserByUsername(username, updateData) {
     }
 }
 
+
+
 async function deleteUserByUsername(username) {
     try {
         // 1. Delete the user from the users collection
@@ -85,6 +88,20 @@ async function deleteUserByUsername(username) {
             }
         );
 
+        // 4. Fetch all videos related to the user from the videos collection
+        const videosCollection = db.collection('videos');
+        const userVideos = await videosCollection.find({ artist: username }).toArray();
+        // This will correctly resolve to the base directory where your script is running
+       
+    
+
+        for (const video of userVideos) {
+            await videoModel.deleteVideoByVid(video.vid);  // Call the delete function for each video's vid        
+        }
+
+        // 7. Delete the videos from the videos collection
+        const videosResult = await videosCollection.deleteMany({ artist: username });
+
         // Return results
         return {
             userResult,
@@ -92,7 +109,8 @@ async function deleteUserByUsername(username) {
             reactionsResult: {
                 decrementLikesResult,
                 decrementUnlikesResult
-            }
+            },
+            videosResult
         };
 
     } catch (error) {
@@ -100,6 +118,7 @@ async function deleteUserByUsername(username) {
         throw new Error('Database delete operation failed');
     }
 }
+
 
 
 async function userRegister(username, password, nickname) {
@@ -211,10 +230,10 @@ async function uploadVideoFile(videoData) {
             
             const reactionDocument = {
                 reactionVid: nextVid,   // Use the same 'vid' from the inserted video
-                likes: "0",             // Initialize likes to "0"
-                unlikes: "0",           // Initialize unlikes to "0"
-                userLiked: [],          // Initialize userLiked array to empty
-                userUnliked: []         // Initialize userUnliked array to empty
+                likes: 0,             // Initialize likes to "0"
+                unlikes: 0,           // Initialize unlikes to "0"
+                usersLiked: [],          // Initialize userLiked array to empty
+                usersUnliked: []         // Initialize userUnliked array to empty
             };
 
             // Insert the reaction document into the 'reactions' collection
