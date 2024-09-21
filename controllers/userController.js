@@ -80,8 +80,6 @@ async function deleteUser(req, res) {
 async function uploadProfileImage(req, res) {
     try {
         const profileImage = req.file;  // Multer handles the file
-        const id = req.body.id;  // Get username from request body
-
         // Update user's profile image path in the database
         const user = await userModel.updateUserProfileImage(id, profileImage.filename);
 
@@ -96,4 +94,42 @@ async function uploadProfileImage(req, res) {
     }
 }
 
-export { getUser, updateUser, deleteUser, createUser, uploadProfileImage };
+async function uploadVideoFile(req, res) {
+    try {
+        const { title, description, imageName, artist, views, date } = req.body;  // Extract metadata from request body
+        const videoFile = req.file;  // The uploaded video file, handled by Multer
+
+        // Ensure all necessary fields are present
+        if (!videoFile || !title || !description || !imageName || !artist || !date) {
+            return res.status(400).json({ message: 'Missing required fields: video file or metadata.' });
+        }
+
+        // Construct the video data object to store in the database
+        const videoData = {
+            title,
+            description,
+            imageName,  // Thumbnail URL provided by the client
+            artist,
+            views: parseInt(views, 10),  // Ensure views is a number
+            date,
+            videoFile: videoFile.filename,  // Multer provides the filename of the uploaded video
+            userId: req.params.id  // User ID is passed in the URL as :id
+        };
+
+        // Call the model function to handle saving the video and metadata to the database
+        const result = await userModel.uploadVideoFile(videoData);  // This function will save the data to your database
+
+        if (result.success) {
+            return res.status(200).json({ success: true, message: 'Video uploaded successfully', video: result.video });
+        } else {
+            return res.status(500).json({ success: false, message: 'Failed to upload video' });
+        }
+    } catch (error) {
+        console.error('Error uploading video:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
+
+export { getUser, updateUser, deleteUser, createUser, uploadProfileImage,uploadVideoFile };
