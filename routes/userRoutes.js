@@ -13,13 +13,6 @@ const router = express.Router();
 router.post('/', createUser);
 router.post('/:id/upload-profile', upload.single('profileImage'), uploadProfileImage);
 
-
-
-
-
-
-
-
 router.get('/:id/videos', getUserVideos);
 //router.post('/:id/videos', uploadVideo);
 

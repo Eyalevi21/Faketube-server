@@ -25,13 +25,35 @@ initializeConnection();
 async function getAllVideos() {
     try {
         const collection = db.collection(collectionName);
-        const videos = await collection.find({}).toArray();
-        return videos;
+
+        // Fetch top 10 most viewed videos
+        const topViewedVideos = await collection
+            .find({})
+            .sort({ views: -1 }) // Sort by views in descending order
+            .limit(10)
+            .toArray();
+
+        // Get the vids of the top 10 most viewed videos
+        const topViewedVids = topViewedVideos.map(video => video.vid);
+
+        // Fetch 10 random videos excluding the top 10 most viewed
+        const randomVideos = await collection
+            .aggregate([
+                { $match: { vid: { $nin: topViewedVids } } }, // Exclude top viewed videos
+                { $sample: { size: 10 } } // Get 10 random videos
+            ])
+            .toArray();
+
+        // Combine both lists
+        const allVideos = [...topViewedVideos, ...randomVideos];
+
+        return allVideos;
     } catch (error) {
         console.error('Error fetching videos from database:', error);
         throw new Error('Database fetch error');
     }
 }
+
 
 async function getVideo(videoId) {
     try {

@@ -86,7 +86,7 @@ async function uploadProfileImage(req, res) {
         const user = await userModel.updateUserProfileImage(id, profileImage.filename);
 
         if (user) {
-            res.send('Profile image uploaded and saved to MongoDB');
+            res.status(200).json(user);
         } else {
             res.status(404).send('User not found');
         }
