@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.8d5cf21b.css",
-    "main.js": "/static/js/main.ac4516c4.js",
+    "main.css": "/static/css/main.fd07e1e0.css",
+    "main.js": "/static/js/main.d5b04c74.js",
     "static/js/453.419a5d54.chunk.js": "/static/js/453.419a5d54.chunk.js",
     "static/media/faketubeLogo.png": "/static/media/faketubeLogo.7d5dff3ea19f0600745c.png",
     "static/media/Sun.svg": "/static/media/Sun.681607dcda2a01539a9a8a157ae74e6e.svg",
@@ -12,12 +12,12 @@
     "static/media/Moon.svg": "/static/media/Moon.0a6a2b75ac51157455302ddcfca385c0.svg",
     "static/media/you.svg": "/static/media/you.bbde677838e807a293a8.svg",
     "static/media/login.svg": "/static/media/login.6b9ad9dee8ab2194b815.svg",
-    "main.8d5cf21b.css.map": "/static/css/main.8d5cf21b.css.map",
-    "main.ac4516c4.js.map": "/static/js/main.ac4516c4.js.map",
+    "main.fd07e1e0.css.map": "/static/css/main.fd07e1e0.css.map",
+    "main.d5b04c74.js.map": "/static/js/main.d5b04c74.js.map",
     "453.419a5d54.chunk.js.map": "/static/js/453.419a5d54.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.8d5cf21b.css",
-    "static/js/main.ac4516c4.js"
+    "static/css/main.fd07e1e0.css",
+    "static/js/main.d5b04c74.js"
   ]
 }
