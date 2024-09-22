@@ -213,7 +213,7 @@ async function uploadVideoFile(videoData) {
             videoFile: videoData.videoFile,
             artist: videoData.artist,
             views: videoData.views || 0,
-            date: new Date(videoData.date),
+            date: videoData.date,
             vid: nextVid,  // Using dynamic vid as an integer
             userId: videoData.userId,
         };

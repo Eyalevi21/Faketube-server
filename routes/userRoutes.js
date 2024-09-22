@@ -6,7 +6,7 @@ import multer from 'multer';
 
 const router = express.Router();
 
-const uploadProfilepicture = multer({ dest: 'public/uploads/' });
+const uploadProfilepicture = multer({ dest: 'public/profileImages/' });
 const uploadVideo = multer({dest: 'public/videofiles'})
 const uploadThumbnail = multer({ dest: 'public/videoThumbnails/' });
 
