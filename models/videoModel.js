@@ -53,6 +53,22 @@ async function getAllVideos() {
         throw new Error('Database fetch error');
     }
 }
+async function getVideosByKey(key) {
+    try {
+        // Access the 'videos' collection
+        const collection = db.collection('videos'); // Assuming 'db' is your MongoDB client and 'videos' is the collection name
+
+        // Perform a case-insensitive search using regex
+        const videos = await collection.find({
+            title: { $regex: key, $options: 'i' } // Search by video title using regex
+        }).toArray(); // Convert the result to an array
+
+        return videos; // Return the found videos
+    } catch (error) {
+        console.error('Error searching for videos:', error);
+        throw error; // Throw error to be handled by the calling function
+    }
+}
 
 
 async function getVideo(videoId) {
@@ -253,4 +269,4 @@ async function addComment(commentData) {
 }
 
 
-export default { getAllVideos, getVideo, getVideosByUser, updateVideoByVid, deleteVideoByVid, getVideoComments, addComment, getVideoReactions, updateVideoReactions };
+export default { getAllVideos, getVideo, getVideosByUser, updateVideoByVid, deleteVideoByVid, getVideoComments, addComment, getVideoReactions, updateVideoReactions, getVideosByKey };

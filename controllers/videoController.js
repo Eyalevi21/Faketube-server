@@ -17,6 +17,25 @@ async function homeVideos(req, res) {
         res.status(500).json({ message: 'Server error' });
     }
 }
+async function searchedVideos(req, res) {
+    try {
+        // Get the search key from the query string
+        const searchKey = req.query.key;
+
+        // Fetch videos from the model using the search key
+        const videos = await videoModel.getVideosByKey(searchKey);
+
+        // Check if any videos are found
+        if (videos.length > 0) {
+            res.status(200).json(videos); // Send videos as JSON response
+        } else {
+            res.status(404).json({ message: 'No videos found' });
+        }
+    } catch (error) {
+        console.error('Error fetching videos:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
 
 async function getUserVideos(req, res) {
     const { id } = req.params;
@@ -198,4 +217,4 @@ async function addComment(req, res) {
 }
 
 
-export { homeVideos, getUserVideos, videoData, updateVideo, deleteVideo, getComments, addComment, getReactions, updateReactions };
+export { homeVideos, getUserVideos, videoData, updateVideo, deleteVideo, getComments, addComment, getReactions, updateReactions, searchedVideos };

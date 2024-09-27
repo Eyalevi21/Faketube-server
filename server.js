@@ -23,7 +23,9 @@ app.use(express.static('public'));
 app.use('/api/tokens', loginRouter);
 app.use('/api/users', userRouter);
 app.use('/api/videos', videoRouter);
-
+app.get('/connection-check', (req, res) => {
+  res.status(200).json({ message: 'Server is online' });
+});
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
