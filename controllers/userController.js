@@ -21,9 +21,16 @@ async function createUser(req, res) {
     try {
         // Call userModel to register the user with the provided data
         const result = await userModel.userRegister(username, password, nickname);
+        
         if (result.success) {
-            return res.status(200).json({ success: true, message: result.message });
+            // Successful registration (status 201)
+            return res.status(201).json({ success: true, message: result.message });
         } else {
+            // Username already exists (status 409)
+            if (result.status === 409) {
+                return res.status(409).json({ success: false, message: result.message });
+            }
+            // Other failure (e.g., validation issues)
             return res.status(400).json({ success: false, message: result.message });
         }
 
@@ -32,6 +39,7 @@ async function createUser(req, res) {
         return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 }
+
 async function updateUser(req, res) {
     const { id } = req.params;
     const { nickname, profile } = req.body;

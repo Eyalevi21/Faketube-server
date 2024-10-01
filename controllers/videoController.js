@@ -37,6 +37,21 @@ async function searchedVideos(req, res) {
     }
 }
 
+const getSideVideos = async (req, res) => {
+    try {
+        const videoId = req.params.vid; // Extract video ID from route parameters
+
+        // Call the model function to fetch videos excluding the current one
+        const sideVideos = await videoModel.getSideVideos(videoId);
+
+        // Send the side videos in the response
+        res.status(200).json(sideVideos);
+    } catch (error) {
+        console.error('Error fetching side videos:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 async function getUserVideos(req, res) {
     const { id } = req.params;
 
@@ -58,12 +73,17 @@ async function getUserVideos(req, res) {
 async function videoData(req, res) {
     try {
         const videoId = req.params.vid; // Get video VID from URL
+        //add 1 to the views if the video is exist
+        const incViews = await videoModel.increaseVideoView(videoId);
+        if(!incViews){
+            res.status(404).json({ message: 'Video not found' });
+        }
         // Fetch video from the model
         const video = await videoModel.getVideo(videoId);
 
         // Check if video are found
         if (video) {
-            res.json(video); // Send video as JSON response
+            res.status(200).json(video); // Send video as JSON response
         } else {
             res.status(404).json({ message: 'Video not found' });
         }
@@ -217,4 +237,4 @@ async function addComment(req, res) {
 }
 
 
-export { homeVideos, getUserVideos, videoData, updateVideo, deleteVideo, getComments, addComment, getReactions, updateReactions, searchedVideos };
+export { homeVideos, getUserVideos, videoData, updateVideo, deleteVideo, getComments, addComment, getReactions, updateReactions, searchedVideos, getSideVideos };

@@ -128,7 +128,7 @@ async function userRegister(username, password, nickname) {
         // Check if the username already exists
         const existingUser = await collection.findOne({ username });
         if (existingUser) {
-            return { success: false, message: 'Username already exists' };
+            return { success: false, status: 409, message: 'Username already exists' };
         }
 
         const newUser = {
@@ -139,13 +139,13 @@ async function userRegister(username, password, nickname) {
 
         const result = await collection.insertOne(newUser);
         if (result.acknowledged) {
-            return { success: true, message: 'User registered successfully' };
+            return { success: true, status: 201, message: 'User registered successfully' };
         } else {
-            return { success: false, message: 'Failed to register user' };
+            return { success: false, status: 500, message: 'Failed to register user, please try again later' };
         }
     } catch (error) {
         console.error('Error registering user', error);
-        return { success: false, message: 'An error occurred during registration' };
+        return { success: false, status: 500, message: 'An error occurred during registration' };
     }
 }
 

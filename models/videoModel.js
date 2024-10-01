@@ -26,11 +26,21 @@ async function getAllVideos() {
     try {
         const collection = db.collection(collectionName);
 
-        // Fetch top 10 most viewed videos
+        // Fetch top 10 most viewed videos, converting 'views' to numbers in the aggregation pipeline
         const topViewedVideos = await collection
-            .find({})
-            .sort({ views: -1 }) // Sort by views in descending order
-            .limit(10)
+            .aggregate([
+                {
+                    $addFields: {
+                        numericViews: { $toInt: "$views" } // Convert 'views' to an integer
+                    }
+                },
+                {
+                    $sort: { numericViews: -1 } // Sort by the numeric 'views' in descending order
+                },
+                {
+                    $limit: 10 // Limit to top 10 videos
+                }
+            ])
             .toArray();
 
         // Get the vids of the top 10 most viewed videos
@@ -53,6 +63,7 @@ async function getAllVideos() {
         throw new Error('Database fetch error');
     }
 }
+
 async function getVideosByKey(key) {
     try {
         // Access the 'videos' collection
@@ -81,6 +92,57 @@ async function getVideo(videoId) {
         throw new Error('Database fetch error');
     }
 }
+async function increaseVideoView(videoId) {
+    try {
+        const collection = db.collection(collectionName);
+
+        // Find the video by its ID and get the current views as a string
+        const video = await collection.findOne({ vid: videoId });
+
+        if (!video) {
+            throw new Error('Video not found');
+        }
+
+        // Convert the views from string to number, increment it, then convert back to string
+        let currentViews = parseInt(video.views, 10);
+        if (isNaN(currentViews)) {
+            currentViews = 0; // If views are not a number, default to 0
+        }
+
+        const updatedViews = (currentViews + 1).toString();
+
+        // Update the video with the new view count
+        const result = await collection.updateOne(
+            { vid: videoId },   // Find the video by its ID
+            { $set: { views: updatedViews } } // Set the 'views' field as the new string value
+        );
+
+        // Check if the update was successful
+        if (result.modifiedCount > 0) {
+            return true; // Return true if the view count was updated
+        } else {
+            return false; // Return false if no document was updated
+        }
+    } catch (error) {
+        console.error('Error updating video views:', error);
+        throw new Error('Database update error');
+    }
+}
+
+const getSideVideos = async (videoId) => {
+    const collection = db.collection(collectionName);
+    try {
+        // Fetch all videos except the one with the given ID and convert the result to an array
+        const videos = await collection.find({ vid: { $ne: videoId } }).toArray(); 
+        
+        return videos;
+    } catch (error) {
+        console.error('Error fetching side videos from the database:', error);
+        throw new Error('Database query error');
+    }
+};
+
+
 
 async function getVideosByUser(username) {
     try {
@@ -269,4 +331,4 @@ async function addComment(commentData) {
 }
 
 
-export default { getAllVideos, getVideo, getVideosByUser, updateVideoByVid, deleteVideoByVid, getVideoComments, addComment, getVideoReactions, updateVideoReactions, getVideosByKey };
+export default { getAllVideos, getVideo, getVideosByUser, updateVideoByVid, deleteVideoByVid, getVideoComments, addComment, getVideoReactions, updateVideoReactions, getVideosByKey, increaseVideoView, getSideVideos };
