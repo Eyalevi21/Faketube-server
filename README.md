@@ -6,7 +6,7 @@ there is two repositoris for the project one is the client and the second is the
 2.in the project file there is folder named "mongo database" which inside have 4 json files, open mongodb compass and press add new connecotion, put this in the url for connection 
 "mongodb://localhost:27017" and press connect.
 
-3.in the connection you just created press on the +sign to create new database, in the database name type "Faketube" and in the collection name type "users".
+3.in the connection you just created press on the + sign to create new database, in the database name type "Faketube" and in the collection name type "users".
 
 4.on the same window create 3 more collections under the Faketube database with the names : 
 "comments", "reactions" and videos.
