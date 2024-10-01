@@ -1,0 +1,228 @@
+[{
+  "_id": {
+    "$oid": "66e8226d12472e967fc21de4"
+  },
+  "reactionVid": "1",
+  "likes": 2,
+  "unlikes": 0,
+  "usersLiked": [
+    "amit",
+    "tohar"
+  ],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66e822be12472e967fc21de7"
+  },
+  "reactionVid": "2",
+  "likes": 2,
+  "unlikes": 0,
+  "usersLiked": [
+    "amit",
+    "eyal"
+  ],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66e822e912472e967fc21de8"
+  },
+  "reactionVid": "3",
+  "likes": 200,
+  "unlikes": 1,
+  "usersLiked": [],
+  "usersUnliked": [
+    "amit"
+  ]
+},
+{
+  "_id": {
+    "$oid": "66e822fa12472e967fc21de9"
+  },
+  "reactionVid": "4",
+  "likes": 188,
+  "unlikes": 3,
+  "usersLiked": [],
+  "usersUnliked": [
+    "amit"
+  ]
+},
+{
+  "_id": {
+    "$oid": "66e8231f12472e967fc21deb"
+  },
+  "reactionVid": "5",
+  "likes": 800,
+  "unlikes": 18,
+  "usersLiked": [],
+  "usersUnliked": [
+    "amit"
+  ]
+},
+{
+  "_id": {
+    "$oid": "66e8236912472e967fc21ded"
+  },
+  "reactionVid": "6",
+  "likes": 877,
+  "unlikes": 11,
+  "usersLiked": [],
+  "usersUnliked": [
+    "amit"
+  ]
+},
+{
+  "_id": {
+    "$oid": "66e8237812472e967fc21dee"
+  },
+  "reactionVid": "7",
+  "likes": 665,
+  "unlikes": 400,
+  "usersLiked": [
+    "amit"
+  ],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66e8238512472e967fc21def"
+  },
+  "reactionVid": "8",
+  "likes": 10,
+  "unlikes": 1,
+  "usersLiked": [],
+  "usersUnliked": [
+    "amit"
+  ]
+},
+{
+  "_id": {
+    "$oid": "66e8239112472e967fc21df0"
+  },
+  "reactionVid": "9",
+  "likes": 10,
+  "unlikes": 10,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66e823a212472e967fc21df1"
+  },
+  "reactionVid": "10",
+  "likes": 455,
+  "unlikes": 90,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc134a05b3da23b34e50e8"
+  },
+  "reactionVid": "11",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc1c7c161cc39542ba737b"
+  },
+  "reactionVid": "12",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc1fe4161cc39542ba7385"
+  },
+  "reactionVid": "15",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc2057161cc39542ba7387"
+  },
+  "reactionVid": "16",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc20c1161cc39542ba738a"
+  },
+  "reactionVid": "17",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc216d161cc39542ba738e"
+  },
+  "reactionVid": "18",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc21eb161cc39542ba7391"
+  },
+  "reactionVid": "19",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc2366161cc39542ba7394"
+  },
+  "reactionVid": "20",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc3414161cc39542ba7397"
+  },
+  "reactionVid": "21",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc34ae161cc39542ba739a"
+  },
+  "reactionVid": "22",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+},
+{
+  "_id": {
+    "$oid": "66fc3538161cc39542ba739d"
+  },
+  "reactionVid": "23",
+  "likes": 0,
+  "unlikes": 0,
+  "usersLiked": [],
+  "usersUnliked": []
+}]

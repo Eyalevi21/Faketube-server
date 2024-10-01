@@ -1,0 +1,18 @@
+[{
+  "_id": {
+    "$oid": "66edf965d79724ed57577400"
+  },
+  "username": "eyal",
+  "password": "322316381",
+  "nickname": "The Levi",
+  "profile": "89ae3dd84a4d75caa33923bc72c71b31"
+},
+{
+  "_id": {
+    "$oid": "66f0617caa5092b8e381b7ac"
+  },
+  "username": "amit",
+  "password": "322316381",
+  "nickname": "The Tager",
+  "profile": "f699389094652a370d94f729f6ece13f"
+}]
