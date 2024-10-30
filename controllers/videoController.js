@@ -1,5 +1,7 @@
 import videoModel from '../models/videoModel.js';
 import userModel from '../models/userModel.js';
+import net from 'net';
+
 
 async function homeVideos(req, res) {
     try {
@@ -39,18 +41,56 @@ async function searchedVideos(req, res) {
 
 const getSideVideos = async (req, res) => {
     try {
-        const videoId = req.params.vid; // Extract video ID from route parameters
+        const videoId = req.params.vid;
+        const cppServerPort = 5555;
+        const cppServerHost = '172.25.48.170';
 
-        // Call the model function to fetch videos excluding the current one
-        const sideVideos = await videoModel.getSideVideos(videoId);
+        // Step 1: Get recommendations from the C++ server
+        const recommendedVids = await new Promise((resolve, reject) => {
+            const client = new net.Socket();
+            const message = `RECOMMEND_FOR_VIDEO ${videoId}`;
+            client.connect(cppServerPort, cppServerHost, () => {
+                client.write(message);
+            });
 
-        // Send the side videos in the response
-        res.status(200).json(sideVideos);
+            client.on('data', (data) => {
+                console.log("Raw data from C++ server:", data.toString()); // Log raw response
+                client.destroy();
+                try {
+                    const recommendations = JSON.parse(data.toString());
+                    resolve(recommendations); // Expected to be an array of vid strings
+                } catch (error) {
+                    reject(new Error('Failed to parse recommendations from C++ server'));
+                }
+            });
+
+            client.on('error', (error) => {
+                console.log("error: " + error)
+                reject(new Error('C++ server connection error: ' + error.message));
+            });
+        });
+
+        // Step 2: Fetch full video details for recommended videos
+        const recommendedVideos = await Promise.all(
+            recommendedVids.map(vid => videoModel.getVideoByVid(vid))
+        );
+
+        // Step 3: Fill with random videos if less than 10 recommendations
+        if (recommendedVideos.length < 10) {
+            const additionalVideos = await videoModel.getRandomVideos(
+                recommendedVids.concat(videoId), // Exclude current videoId and recommended videos
+                10 - recommendedVideos.length
+            );
+            recommendedVideos.push(...additionalVideos);
+        }
+
+        res.status(200).json(recommendedVideos);
     } catch (error) {
         console.error('Error fetching side videos:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
 
 async function getUserVideos(req, res) {
     const { id } = req.params;
@@ -75,7 +115,7 @@ async function videoData(req, res) {
         const videoId = req.params.vid; // Get video VID from URL
         //add 1 to the views if the video is exist
         const incViews = await videoModel.increaseVideoView(videoId);
-        if(!incViews){
+        if (!incViews) {
             res.status(404).json({ message: 'Video not found' });
         }
         // Fetch video from the model

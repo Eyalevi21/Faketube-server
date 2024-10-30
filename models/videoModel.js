@@ -133,8 +133,8 @@ const getSideVideos = async (videoId) => {
     const collection = db.collection(collectionName);
     try {
         // Fetch all videos except the one with the given ID and convert the result to an array
-        const videos = await collection.find({ vid: { $ne: videoId } }).toArray(); 
-        
+        const videos = await collection.find({ vid: { $ne: videoId } }).toArray();
+
         return videos;
     } catch (error) {
         console.error('Error fetching side videos from the database:', error);
@@ -154,6 +154,17 @@ async function getVideosByUser(username) {
         throw new Error('Database fetch error');
     }
 }
+
+async function getVideoByVid(vid) {
+    try {
+        const collection = db.collection(collectionName);
+        const video = await collection.findOne({ vid });
+        if (!video) throw new Error(`Video with vid ${vid} not found`);
+        return video;
+    } catch (error) {
+        throw new Error(`Failed to retrieve video by vid: ${error.message}`);
+    }
+};
 
 async function updateVideoByVid(vid, updateData) {
     try {
@@ -331,4 +342,19 @@ async function addComment(commentData) {
 }
 
 
-export default { getAllVideos, getVideo, getVideosByUser, updateVideoByVid, deleteVideoByVid, getVideoComments, addComment, getVideoReactions, updateVideoReactions, getVideosByKey, increaseVideoView, getSideVideos };
+async function getRandomVideos(excludeVids = [], count = 10) {
+    try {
+        const pipeline = [
+            { $match: { vid: { $nin: excludeVids } } }, // Exclude videos with the specified IDs
+            { $sample: { size: count } } // Randomly sample 'count' documents
+        ];
+        const collection = db.collection('videos');
+        const randomVideos = await collection.aggregate(pipeline).toArray();
+        return randomVideos;
+    } catch (error) {
+        throw new Error(`Failed to retrieve random videos: ${error.message}`);
+    }
+};
+
+
+export default { getRandomVideos, getAllVideos, getVideo, getVideosByUser, getVideoByVid, updateVideoByVid, deleteVideoByVid, getVideoComments, addComment, getVideoReactions, updateVideoReactions, getVideosByKey, increaseVideoView, getSideVideos };
